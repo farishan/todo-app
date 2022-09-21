@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App</title>
+</head>
+
+<body>
+    <script>
+        const rootDOM = document.body
+        const todosDOM = document.createElement('div')
+        let todos = []
+
+        const todoManager = {
+            add: function (todo) {
+                todos.push(todo)
+                this.render()
+            },
+            delete: function (todo) {
+                todos = todos.filter(t => t !== todo)
+                this.render()
+            },
+            render: function () {
+                todosDOM.innerHTML = ''
+                todos.forEach(todo => {
+                    renderTodo(todo)
+                });
+            }
+        }
+
+        const inputTodoDOM = setMinimalDimension(document.createElement("input"))
+        inputTodoDOM.placeholder = 'What to do?'
+
+        const addButtonDOM = setMinimalDimension(document.createElement("button"))
+        addButtonDOM.innerHTML = 'Add'
+        addButtonDOM.onclick = function () {
+            todoManager.add(inputTodoDOM.value)
+        }
+
+        function renderTodo(todo) {
+            const todoRootDOM = document.createElement('div')
+            todoRootDOM.style.display = 'flex'
+            todoRootDOM.style.flexWrap = 'wrap'
+            todoRootDOM.style.justifyContent = 'space-between'
+            todoRootDOM.style.border = '1px solid'
+            todoRootDOM.innerHTML = `<p>To do: ${todo}</p>`
+
+            const deleteButtonDOM = setMinimalDimension(document.createElement('button'))
+            deleteButtonDOM.innerHTML = 'Delete'
+            deleteButtonDOM.onclick = function () {
+                todoManager.delete(todo)
+            }
+
+            todoRootDOM.appendChild(deleteButtonDOM)
+            todosDOM.appendChild(todoRootDOM)
+        }
+
+        function setMinimalDimension(element) {
+            element.style.minWidth = '48px'
+            element.style.minHeight = '48px'
+            return element
+        }
+
+        rootDOM.appendChild(inputTodoDOM)
+        rootDOM.appendChild(addButtonDOM)
+        rootDOM.appendChild(todosDOM)
+
+        inputTodoDOM.focus()
+    </script>
+</body>
+
+</html>
