@@ -1,4 +1,12 @@
+An application to manage to-do list.
+
 # Features
 
-[x] Add todo
-[x] Delete todo
+## Functional
+
+- [x] Add todo
+- [x] Delete todo
+
+## Presentational
+- [x] Responsive
+- [x] Mobile-friendly
