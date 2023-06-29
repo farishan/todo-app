@@ -28,6 +28,14 @@
       color: var(--color);
       font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     }
+
+    button {
+      background-color: transparent;
+      color: inherit;
+      cursor: pointer;
+      padding: 4px 20px;
+      min-height: 48px;
+    }
   </style>
 </head>
 
@@ -40,12 +48,13 @@
     let todos = savedTodos ? JSON.parse(savedTodos) : []
 
     rootDOM.style.maxWidth = '960px'
-    rootDOM.style.margin = '20px auto'
+    rootDOM.style.padding = '20px'
+    rootDOM.style.margin = '0 auto'
 
     const todoManager = {
       add: function (todo) {
         if (!todos.includes(todo)) todos.push(todo)
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))
+        save()
         this.render()
       },
       delete: function (todo) {
@@ -53,20 +62,20 @@
         if (!c) return
 
         todos = todos.filter(t => t !== todo)
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))
+        save()
         this.render()
         inputTodoDOM.focus()
       },
       render: function () {
         todosDOM.innerHTML = ''
-        todos.forEach(todo => {
-          renderTodo(todo)
+        todos.forEach((todo, index) => {
+          renderTodo(todo, index)
         });
       }
     }
 
-    const inputTodoDOM = setMinimalDimension(document.createElement("textarea"))
-    inputTodoDOM.placeholder = 'What to do? Press "Enter" to add'
+    const inputTodoDOM = setMinimalDimension(document.createElement("input"))
+    inputTodoDOM.placeholder = 'What to do? Press "Enter" or click button below to add'
     inputTodoDOM.style.width = '100%'
     inputTodoDOM.style.padding = '10px 20px'
     inputTodoDOM.onkeydown = function(e) {
@@ -75,7 +84,7 @@
       inputTodoDOM.value = ''
     }
 
-    const addButtonDOM = setMinimalDimension(document.createElement("button"))
+    const addButtonDOM = document.createElement("button")
     addButtonDOM.innerHTML = 'Add'
     addButtonDOM.style.display = 'block'
     addButtonDOM.style.width = '100%'
@@ -83,19 +92,30 @@
       todoManager.add(inputTodoDOM.value)
     }
 
-    function renderTodo(todo) {
+    function updateTodo(newContent, index) {
+      todos[index] = newContent
+      save()
+    }
+
+    function renderTodo(todo, index) {
       const todoRootDOM = document.createElement('div')
       todoRootDOM.style.display = 'flex'
-      todoRootDOM.style.flexWrap = 'wrap'
       todoRootDOM.style.justifyContent = 'space-between'
-      todoRootDOM.style.border = '1px solid #dddddd'
-      todoRootDOM.style.marginBottom = '8px'
+      todoRootDOM.style.borderBottom = '1px solid #aaaaaa'
+      todoRootDOM.style.marginBottom = '10px'
 
-      const todoContentDOM = document.createElement('div')
-      todoContentDOM.style.padding = '8px 20px'
-      todoContentDOM.innerHTML = `<p>${todo}</p>`
+      const todoContentDOM = document.createElement('input')
+      todoContentDOM.style.padding = '8px 20px 8px 0'
+      todoContentDOM.style.width = '100%'
+      todoContentDOM.style.color = 'inherit'
+      todoContentDOM.style.background = 'transparent'
+      todoContentDOM.style.border = 'none'
+      todoContentDOM.value = todo
+      todoContentDOM.onblur = function() {
+        updateTodo(todoContentDOM.value, index)
+      }
 
-      const deleteButtonDOM = setMinimalDimension(document.createElement('button'))
+      const deleteButtonDOM = document.createElement('button')
       deleteButtonDOM.innerHTML = 'Delete'
       deleteButtonDOM.onclick = function () {
         todoManager.delete(todo)
@@ -122,6 +142,11 @@
 
     todoManager.render()
     inputTodoDOM.focus()
+
+    /* Functions */
+    function save() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))
+    }
   </script>
 </body>
 
