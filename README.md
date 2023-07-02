@@ -6,7 +6,7 @@ An application to manage to-do list.
 
 - [x] Add todo
 - [x] Delete todo
-- [x] Save/load todo (`localStorage`)
+- [x] Autosave (`localStorage`)
 
 ## Presentational
 - [x] Responsive
