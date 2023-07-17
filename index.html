@@ -13,112 +13,115 @@
 
 <body>
   <script>
-    const STORAGE_KEY = 'todo'
-    const rootDOM = document.body
-    const todosDOM = document.createElement('div')
-    const savedTodos = localStorage.getItem(STORAGE_KEY)
-    let todos = savedTodos ? JSON.parse(savedTodos) : []
+    function TodoApp() {
+      const STORAGE_KEY = 'todo'
+      const rootDOM = document.body
+      const todosDOM = document.createElement('div')
+      const savedTodos = localStorage.getItem(STORAGE_KEY)
+      let todos = savedTodos ? JSON.parse(savedTodos) : []
 
-    rootDOM.style.maxWidth = '960px'
-    rootDOM.style.padding = '20px'
-    rootDOM.style.margin = '0 auto'
+      rootDOM.style.maxWidth = '960px'
+      rootDOM.style.padding = '20px'
+      rootDOM.style.margin = '0 auto'
 
-    const todoManager = {
-      add: function (todo) {
-        if (!todos.includes(todo)) todos.push(todo)
+      const todoManager = {
+        add: function (todo) {
+          if (!todos.includes(todo)) todos.push(todo)
+          save()
+          this.render()
+        },
+        delete: function (todo) {
+          const c = confirm(`Are you sure want to delete "${todo}"?`)
+          if (!c) return
+
+          todos = todos.filter(t => t !== todo)
+          save()
+          this.render()
+          inputTodoDOM.focus()
+        },
+        render: function () {
+          todosDOM.innerHTML = ''
+          todos.forEach((todo, index) => {
+            renderTodo(todo, index)
+          });
+        }
+      }
+
+      const inputTodoDOM = setMinimalDimension(document.createElement("input"))
+      inputTodoDOM.placeholder = 'What to do? Press "Enter" or click button below to add'
+      inputTodoDOM.style.width = '100%'
+      inputTodoDOM.style.padding = '10px 20px'
+      inputTodoDOM.onkeydown = function (e) {
+        if (e.key !== 'Enter') return
+        todoManager.add(e.target.value)
+        inputTodoDOM.value = ''
+      }
+
+      const addButtonDOM = document.createElement("button")
+      addButtonDOM.innerHTML = 'Add'
+      addButtonDOM.style.display = 'block'
+      addButtonDOM.style.width = '100%'
+      addButtonDOM.onclick = function () {
+        todoManager.add(inputTodoDOM.value)
+      }
+
+      function updateTodo(newContent, index) {
+        todos[index] = newContent
         save()
-        this.render()
-      },
-      delete: function (todo) {
-        const c = confirm(`Are you sure want to delete "${todo}"?`)
-        if (!c) return
+      }
 
-        todos = todos.filter(t => t !== todo)
-        save()
-        this.render()
-        inputTodoDOM.focus()
-      },
-      render: function () {
-        todosDOM.innerHTML = ''
-        todos.forEach((todo, index) => {
-          renderTodo(todo, index)
-        });
+      function renderTodo(todo, index) {
+        const todoRootDOM = document.createElement('div')
+        todoRootDOM.style.display = 'flex'
+        todoRootDOM.style.justifyContent = 'space-between'
+        todoRootDOM.style.borderBottom = '1px solid #aaaaaa'
+        todoRootDOM.style.marginBottom = '10px'
+
+        const todoContentDOM = document.createElement('input')
+        todoContentDOM.style.padding = '8px 20px 8px 0'
+        todoContentDOM.style.width = '100%'
+        todoContentDOM.style.color = 'inherit'
+        todoContentDOM.style.background = 'transparent'
+        todoContentDOM.style.border = 'none'
+        todoContentDOM.value = todo
+        todoContentDOM.onblur = function () {
+          updateTodo(todoContentDOM.value, index)
+        }
+
+        const deleteButtonDOM = document.createElement('button')
+        deleteButtonDOM.innerHTML = 'Delete'
+        deleteButtonDOM.onclick = function () {
+          todoManager.delete(todo)
+        }
+
+        todoRootDOM.appendChild(todoContentDOM)
+        todoRootDOM.appendChild(deleteButtonDOM)
+        todosDOM.appendChild(todoRootDOM)
+      }
+
+      const inputSectionDOM = document.createElement('section')
+      inputSectionDOM.style.marginBottom = '8px'
+      inputSectionDOM.appendChild(inputTodoDOM)
+      inputSectionDOM.appendChild(addButtonDOM)
+
+      rootDOM.appendChild(inputSectionDOM)
+      rootDOM.appendChild(todosDOM)
+
+      todoManager.render()
+      inputTodoDOM.focus()
+
+      /* Functions */
+      function save() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))
+      }
+      function setMinimalDimension(element) {
+        element.style.minWidth = '48px'
+        element.style.minHeight = '48px'
+        return element
       }
     }
 
-    const inputTodoDOM = setMinimalDimension(document.createElement("input"))
-    inputTodoDOM.placeholder = 'What to do? Press "Enter" or click button below to add'
-    inputTodoDOM.style.width = '100%'
-    inputTodoDOM.style.padding = '10px 20px'
-    inputTodoDOM.onkeydown = function (e) {
-      if (e.key !== 'Enter') return
-      todoManager.add(e.target.value)
-      inputTodoDOM.value = ''
-    }
-
-    const addButtonDOM = document.createElement("button")
-    addButtonDOM.innerHTML = 'Add'
-    addButtonDOM.style.display = 'block'
-    addButtonDOM.style.width = '100%'
-    addButtonDOM.onclick = function () {
-      todoManager.add(inputTodoDOM.value)
-    }
-
-    function updateTodo(newContent, index) {
-      todos[index] = newContent
-      save()
-    }
-
-    function renderTodo(todo, index) {
-      const todoRootDOM = document.createElement('div')
-      todoRootDOM.style.display = 'flex'
-      todoRootDOM.style.justifyContent = 'space-between'
-      todoRootDOM.style.borderBottom = '1px solid #aaaaaa'
-      todoRootDOM.style.marginBottom = '10px'
-
-      const todoContentDOM = document.createElement('input')
-      todoContentDOM.style.padding = '8px 20px 8px 0'
-      todoContentDOM.style.width = '100%'
-      todoContentDOM.style.color = 'inherit'
-      todoContentDOM.style.background = 'transparent'
-      todoContentDOM.style.border = 'none'
-      todoContentDOM.value = todo
-      todoContentDOM.onblur = function () {
-        updateTodo(todoContentDOM.value, index)
-      }
-
-      const deleteButtonDOM = document.createElement('button')
-      deleteButtonDOM.innerHTML = 'Delete'
-      deleteButtonDOM.onclick = function () {
-        todoManager.delete(todo)
-      }
-
-      todoRootDOM.appendChild(todoContentDOM)
-      todoRootDOM.appendChild(deleteButtonDOM)
-      todosDOM.appendChild(todoRootDOM)
-    }
-
-    function setMinimalDimension(element) {
-      element.style.minWidth = '48px'
-      element.style.minHeight = '48px'
-      return element
-    }
-
-    const inputSectionDOM = document.createElement('section')
-    inputSectionDOM.style.marginBottom = '8px'
-    inputSectionDOM.appendChild(inputTodoDOM)
-    inputSectionDOM.appendChild(addButtonDOM)
-
-    rootDOM.appendChild(inputSectionDOM)
-    rootDOM.appendChild(todosDOM)
-
-    todoManager.render()
-    inputTodoDOM.focus()
-
-    /* Functions */
-    function save() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))
-    }
+    TodoApp()
   </script>
 </body>
 
